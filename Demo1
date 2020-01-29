@@ -1,0 +1,86 @@
+package SeleniumTest;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+
+public class GetSiteName {
+
+	
+	public static void main(String[] args) throws InterruptedException, IOException {
+		// TODO Auto-generated method stub
+		
+		System.setProperty("webdriver.chrome.driver", "D:\\Docs\\Auto mation\\Latest\\chromedriver.exe");
+		WebDriver driver = new ChromeDriver();
+		driver.get("https://demo.contentraven.com");
+		WebElement username = driver.findElement(By.id("UserName"));
+		username.sendKeys("Sundharlms@yopmail.com"+Keys.TAB);
+		driver.findElement(By.id("Password")).sendKeys("welcome"+Keys.ENTER);;	
+		Thread.sleep(10000);
+		driver.manage().window().maximize();
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.findElement(By.xpath("//*[@id='content']/section/header/div[2]/div/div[1]/div/a")).click();				
+		driver.findElement(By.xpath("//*[@id='mCSB_1_container']/li[1]/a")).click();		
+		driver.findElement(By.xpath("//*[@id='uiUsers']/a")).click();
+		driver.findElement(By.xpath("//*[@id='aContact']")).click();			
+		java.util.Set<String> windows = driver.getWindowHandles();		
+		Iterator<String> iter = windows.iterator();
+		String mainwindow = iter.next();
+		String childwindow = iter.next();
+		driver.switchTo().window(childwindow);
+		Thread.sleep(10000);
+		
+		List<WebElement> sr = driver.findElements(By.xpath("/html/body/content-raven-admin/cr-dtc-contact-dashboard/div[2]/div[2]/section/div/div/div[2]/ul/li"));
+		int value = sr.size();
+		System.out.println(value); 
+		String beforeXpath = "/html/body/content-raven-admin/cr-dtc-contact-dashboard/div[2]/div[2]/section/div/div/div[2]/ul/li[";
+		String afterxpath = "]";
+		
+		java.io.File src = new java.io.File("D:\\Docs\\Sundhar\\SPPP.xlsx");
+		
+		FileInputStream file = new FileInputStream(src);
+		XSSFWorkbook wb = new XSSFWorkbook(file);
+		XSSFSheet sheet = wb.getSheetAt(0);	
+		JavascriptExecutor jse = (JavascriptExecutor) driver;
+		int p= 5;
+		FileOutputStream fos = new FileOutputStream("D:\\Docs\\Sundhar\\SPPP.xlsx"); 
+		for (int i = 1; i < p; i++) {
+			WebElement locate = driver.findElement(By.xpath(beforeXpath+i+afterxpath));
+			String SS = locate.getText();
+			System.out.println(i);
+			sheet.createRow(1).createCell(i).setCellValue(SS);	
+			System.out.println(i);
+			jse.executeScript("arguments[0].scrollIntoView();", locate);
+			Thread.sleep(1000);
+			
+			System.out.println(SS);
+		}		
+		wb.write(fos);		
+		wb.close();
+		fos.close();
+		System.out.println("Done all");
+		driver.quit();
+		
+	}
+
+}
